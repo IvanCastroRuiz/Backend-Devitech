@@ -16,7 +16,7 @@ const createPlatos = async (req, res) => {
         const { nombre, description, precio } = req.body;
         let image;
         
-        /*if (req.files.image) {
+        if (req.files.image) {
             const result = await uploadImage(req.files.image.tempFilePath);
             await fs.remove(req.files.image.tempFilePath);
             image = {
@@ -25,10 +25,10 @@ const createPlatos = async (req, res) => {
             };
             
             console.log(result);
-        }*/
+        }
         // Error en la carga de la imagen
-        //const Newplato = new Plato({ nombre, description, precio, image });
-        const Newplato = new Plato({ nombre, description, precio});
+        const Newplato = new Plato({ nombre, description, precio, image });
+        //const Newplato = new Plato({ nombre, description, precio});
         await Newplato.save();
         return res.json(Newplato)
 

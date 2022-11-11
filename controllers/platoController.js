@@ -24,7 +24,7 @@ const createPlatos = async (req, res) => {
                 public_id: result.public_id,
             };
             
-            console.log(result);
+            // console.log(result);
         }
         // Error en la carga de la imagen
         const Newplato = new Plato({ nombre, description, precio, image });
@@ -50,19 +50,34 @@ const getPlatos = async (req, res) => {
 
 const updatePlatos = async (req, res) => {
 
+    const { id, nombre, description, precio } = req.body;
+
     try {
-        const updatedPlato = await Plato.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            {
-                new: true,
-            }
-        );
+        const updatePlato = await Plato.findById(id);
+        // console.log(updatePlato);
 
-        return res.send(updatedPlato);
+        updatePlato.nombre = nombre;
+        updatePlato.description = description;
+        updatePlato.precio = precio;
 
+        if (req.files.image) {
+
+            await deleteImage(updatePlato.image.public_id);
+
+            const result = await uploadImage(req.files.image.tempFilePath);
+            await fs.remove(req.files.image.tempFilePath);
+            
+            updatePlato.image = {
+                url: result.secure_url,
+                public_id: result.public_id,
+            }; 
+
+            await updatePlato.save();
+
+            return res.status(204).json(updatePlato);
+        }
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        console.log(error.message);  
     }
 };
 
@@ -78,8 +93,6 @@ const deletePlatos = async (req, res) => {
             if (platoRemoved.image.public_id) {
                 await deleteImage(platoRemoved.image.public_id);
             }
-
-            // return res.sendStatus(204);
             return res.status(204).json({ msg: "Plato Eliminado correctamente" });    
         }
     } catch (error) {
